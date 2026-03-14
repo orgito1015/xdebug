@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# xdebug — Xdebug Terminal Debugger launcher
+#
+# Requires: bash 4+, PHP with Xdebug extension installed.
+#
+# Usage:
+#   xdebug [options] <file.php> [-- <script-args>]
+#
+# Options:
+#   --port=<n>    DBGp listen port (default: 9003)
+#   --php=<path>  Path to the PHP binary (default: auto-detected)
+#   --help        Show help
+#
+# Example:
+#   xdebug myscript.php
+#   xdebug --port=9010 myscript.php -- arg1 arg2
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEBUGGER_SCRIPT="${SCRIPT_DIR}/xdebug-debugger.php"
+
+# Locate a PHP binary
+find_php() {
+    if command -v php &>/dev/null; then
+        command -v php
+    else
+        echo ""
+    fi
+}
+
+# Show help and exit if --help or -h is the first argument.
+# The PHP debugger script handles --help itself; we just need to make
+# sure a PHP binary is available to run it.
+for arg in "$@"; do
+    if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
+        PHP_HELP="${PHP_BIN:-$(find_php)}"
+        if [[ -n "${PHP_HELP}" && -f "${DEBUGGER_SCRIPT}" ]]; then
+            exec "${PHP_HELP}" "${DEBUGGER_SCRIPT}" --help
+        fi
+        cat <<'USAGE'
+Xdebug Terminal Debugger
+
+Usage:
+  xdebug [options] <file.php> [-- <script-args>]
+
+Options:
+  --port=<n>    DBGp listen port (default: 9003)
+  --php=<path>  Path to the PHP binary (default: auto-detected)
+  --help        Show this help
+
+Run 'xdebug <file.php>' to start an interactive debug session.
+USAGE
+        exit 0
+    fi
+done
+
+PHP_BIN="${PHP_BIN:-$(find_php)}"
+
+if [[ -z "${PHP_BIN}" ]]; then
+    echo "Error: PHP binary not found. Set PHP_BIN or install PHP and add it to PATH." >&2
+    exit 1
+fi
+
+if [[ ! -f "${DEBUGGER_SCRIPT}" ]]; then
+    echo "Error: xdebug-debugger.php not found at ${DEBUGGER_SCRIPT}" >&2
+    exit 1
+fi
+
+# Check that xdebug is loaded in the PHP binary
+if ! "${PHP_BIN}" -m 2>/dev/null | grep -qi 'xdebug'; then
+    cat >&2 <<EOF
+Warning: Xdebug does not appear to be loaded by '${PHP_BIN}'.
+         Debugging will not work without the Xdebug PHP extension.
+         Install Xdebug and make sure it is enabled in your php.ini.
+         Continuing anyway...
+EOF
+fi
+
+exec "${PHP_BIN}" "${DEBUGGER_SCRIPT}" "$@"
