@@ -69,6 +69,67 @@ The documentation has instructions for each of Xdebug's features:
 https://xdebug.org/docs/ and a full list of `settings
 <https://xdebug.org/docs/all_settings>`_ is also available there.
 
+Terminal Debugger
+-----------------
+
+Xdebug ships a self-contained interactive command-line debugger in
+``contrib/``. It requires no IDE — just a terminal.
+
+**Setup** — make the wrapper executable and put it on your ``$PATH``::
+
+	chmod +x contrib/xdebug
+	ln -s "$(pwd)/contrib/xdebug" /usr/local/bin/xdebug
+
+**Start a debug session**::
+
+	xdebug myscript.php
+	xdebug --port=9010 myscript.php -- arg1 arg2
+
+Options:
+
+``--port=<n>``
+  DBGp listen port (default: 9003).
+
+``--php=<path>``
+  Path to the PHP binary (default: auto-detected from ``$PATH``).  You can
+  also set the ``PHP_BIN`` environment variable instead.
+
+``--help``
+  Show the built-in help.
+
+**Debugger commands**
+
++-----------------------+----------------------------------------------+
+| Command               | Action                                       |
++=======================+==============================================+
+| ``r`` / ``run``       | Continue to next breakpoint or end of script |
++-----------------------+----------------------------------------------+
+| ``s`` / ``step``      | Step into the next statement                 |
++-----------------------+----------------------------------------------+
+| ``n`` / ``next``      | Step over the next statement                 |
++-----------------------+----------------------------------------------+
+| ``o`` / ``out``       | Step out of the current function             |
++-----------------------+----------------------------------------------+
+| ``b [file] <line>``   | Set a breakpoint (file defaults to current)  |
++-----------------------+----------------------------------------------+
+| ``bl``                | List all breakpoints                         |
++-----------------------+----------------------------------------------+
+| ``bd <id>``           | Delete breakpoint by ID                      |
++-----------------------+----------------------------------------------+
+| ``p <expr>``          | Evaluate a PHP expression and print result   |
++-----------------------+----------------------------------------------+
+| ``v``                 | Show local variables in the current scope    |
++-----------------------+----------------------------------------------+
+| ``bt``                | Show the call stack (backtrace)              |
++-----------------------+----------------------------------------------+
+| ``l [line] [n]``      | List source around the current (or given)    |
+|                       | line                                         |
++-----------------------+----------------------------------------------+
+| ``h`` / ``help`` / ``?`` | Show the command reference               |
++-----------------------+----------------------------------------------+
+| ``q`` / ``quit``      | Quit the debugger                            |
++-----------------------+----------------------------------------------+
+
 Contributing
 ------------
 
