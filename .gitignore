@@ -85,6 +85,7 @@ phpt.*
 !bench.php
 !rector.php
 !generate_summary.php
+!xdebug-debugger.php
 tests/ctest/*.o
 tests/ctest/afl-test-*
 tests/ctest/ctest
